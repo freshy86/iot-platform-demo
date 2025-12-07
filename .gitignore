@@ -1,0 +1,50 @@
+# Build results
+bin/
+obj/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# ReSharper
+.idea/
+*.DotSettings.user
+_ReSharper*/
+*_ReSharper*/
+
+# Test Results
+TestResults/
+*.trx
+*.coverage
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Local environment variables
+.env
+.env.local
+appsettings.Development.json
+
+# IDE
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+.vscode/launch.json
+.vscode/settings.json
