@@ -36,8 +36,7 @@ jobs:
         uses: dorny/test-reporter@v2
         if: ${{ !cancelled() }}
         with:
-          artifact: test-results
-          name: webapi tests           
+          name: WebApi Tests           
           path: WebApi.Tests/TestResults/*.trx 
           reporter: dotnet-trx
 
