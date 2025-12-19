@@ -58,6 +58,7 @@ jobs:
 
   report:
     runs-on: ubuntu-latest
+    needs: build-and-test
     steps:
     - uses: dorny/test-reporter@v2
       with:
