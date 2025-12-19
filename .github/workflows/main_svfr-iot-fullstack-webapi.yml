@@ -56,7 +56,7 @@ jobs:
       with:
         artifact: test-results
         name: webapi tests           
-        path: WebApi.Tests/TestResults/*.trx    
+        path: *.trx    
         reporter: dotnet-trx
   
   deploy:
