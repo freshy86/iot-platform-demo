@@ -30,7 +30,15 @@ jobs:
         run: dotnet build 
 
       - name: Test with dotnet
-        run: dotnet test --no-build
+        run: dotnet test --no-build --logger trx
+
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: ${{ !cancelled() }}       # run this step even if previous step failed
+        with:
+          name: webapi tests           
+          path: WebApi.Tests/TestResults/*.trx    
+          reporter: dotnet-trx
 
       - name: dotnet publish webapi
         run: dotnet publish ${{ env.WEBAPI_PROJECT_FILE }} -c Release -o ${{env.DOTNET_ROOT}}/myapp
