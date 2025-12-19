@@ -13,7 +13,7 @@ env:
   WEBAPI_PROJECT_FILE: './WebApi.WebApi/WebApi.WebApi.csproj'
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read #This is required for actions/checkout
@@ -26,21 +26,14 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      - name: Test
-        run: |
-          pwd
-          ls -la
+      - name: Build solution with dotnet
+        run: dotnet build 
 
-      - name: Build with dotnet
-        run: dotnet build ${{ env.WEBAPI_PROJECT_FILE }} --configuration Release
+      - name: Test with dotnet
+        run: dotnet test --no-build
 
-      - name: dotnet publish
+      - name: dotnet publish webapi
         run: dotnet publish ${{ env.WEBAPI_PROJECT_FILE }} -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-      - name: Test
-        run: |
-          pwd
-          ls -la ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -67,11 +60,6 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AB4986D716F24567A38B3F982C91BB70 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A7DF7185924D4F66881567489550CCFB }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E9B21F2C2682402FBFE06A022EE29F3A }}
-
-      - name: Test
-        run: |
-          pwd
-          ls -la
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
