@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  WEBAPI_PROJECT_FILE: './WebApi.WebApi/WebApi.WebApi.csproj'
+  WEBAPI_PROJECT_FILE: './IotPlatformDemo.API/IotPlatformDemo.API.csproj'
 
 jobs:
   build-and-test:
@@ -36,11 +36,11 @@ jobs:
         uses: dorny/test-reporter@v2
         if: ${{ !cancelled() }}
         with:
-          name: WebApi Tests           
-          path: WebApi.Tests/TestResults/*.trx 
+          name: Tests           
+          path: IotPlatformDemo.Tests/TestResults/*.trx 
           reporter: dotnet-trx
 
-      - name: dotnet publish webapi
+      - name: dotnet publish
         run: dotnet publish ${{ env.WEBAPI_PROJECT_FILE }} -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job

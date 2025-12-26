@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <RootNamespace>IotPlatformDemo.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WebApi.WebApi\WebApi.WebApi.csproj" />
+    <ProjectReference Include="..\IotPlatformDemo.API\IotPlatformDemo.API.csproj" />
   </ItemGroup>
 
 </Project>

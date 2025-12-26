@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 
-const string apiTitle = "IoT Demo WebApi";
+const string apiTitle = "IoT Demo API";
 const string apiVersion = "v1";
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="IotPlatformDemo.API\IotPlatformDemo.API.csproj" />
+  <Project Path="IotPlatformDemo.Tests\IotPlatformDemo.Tests.csproj" />
+</Solution>
