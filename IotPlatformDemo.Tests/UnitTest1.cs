@@ -24,13 +24,9 @@ public class BasicTests
 
         // Act
         var response = await client.GetAsync(url);
-
-        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
-
-/*
-        // Assert
+        
         response.EnsureSuccessStatusCode(); // Status Code 200-299
         Assert.Equal("application/json; charset=utf-8",
-            response.Content.Headers.ContentType.ToString());*/
+            response.Content.Headers.ContentType.ToString());
     }
 }
