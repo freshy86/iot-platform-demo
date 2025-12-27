@@ -1,17 +1,25 @@
+using IotPlatformDemo.Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 
-const string apiTitle = "IoT Demo API";
+var apiTitle = "IoT Demo API";
 const string apiVersion = "v1";
 
 var builder = WebApplication.CreateBuilder(args);
+var env = builder.Environment;
+var isDevelopment = env.IsDevelopment();
 
-// Add services to the container.
+if (isDevelopment)
+    apiTitle += " (Development)";
+
+builder.Services.AddSingleton(new Device());
 
 builder.Services.AddControllers();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration);
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApi(builder.Configuration);
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -38,6 +46,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+if (isDevelopment)
+    app.MapControllers().WithMetadata(new AllowAnonymousAttribute());
+else
+    app.MapControllers();
 
 app.Run();

@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="IotPlatformDemo.API\IotPlatformDemo.API.csproj" />
+  <Project Path="IotPlatformDemo.Domain/IotPlatformDemo.Domain.csproj" />
   <Project Path="IotPlatformDemo.Tests\IotPlatformDemo.Tests.csproj" />
 </Solution>

@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
-using webapi;
 using Xunit.Abstractions;
 
-namespace WebApi.Tests;
+namespace IotPlatformDemo.Tests;
 
 public class BasicTests
     : IClassFixture<WebApplicationFactory<Program>>
