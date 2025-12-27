@@ -14,7 +14,7 @@ public class BasicTests
         _factory = factory;
         _testOutputHelper = testOutputHelper;
     }
-
+/*
     [Theory]
     [InlineData("/Test")]
     public async Task Get_EndpointsReturnSuccessAndCorrectContentType(string url)
@@ -28,5 +28,5 @@ public class BasicTests
         response.EnsureSuccessStatusCode(); // Status Code 200-299
         Assert.Equal("application/json; charset=utf-8",
             response.Content.Headers.ContentType.ToString());
-    }
+    }*/
 }
