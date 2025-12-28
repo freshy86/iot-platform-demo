@@ -1,3 +1,5 @@
+using System.Net;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Devices;
@@ -10,9 +12,14 @@ public class DeviceController : ControllerBase
 {
     private readonly RegistryManager _registryManager;
 
-    public DeviceController(RegistryManager registryManager)
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    public DeviceController(RegistryManager registryManager,
+                            IHttpContextAccessor contextAccessor
+                            )
     {
         _registryManager = registryManager;
+        _contextAccessor = contextAccessor;
     }
 
     [HttpPost]
@@ -20,14 +27,21 @@ public class DeviceController : ControllerBase
         RequiredScopesConfigurationKey = "AzureAD:Scopes:Write",
         RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Write"
     )]
-    public void AddNewDevice()
+    public async Task<IActionResult> AddNewDevice()
     {
-        var configId = Guid.NewGuid().ToString();
-        
-        Device newDevice = new Device(configId);
-        var addedDevice = _registryManager.AddDeviceAsync(newDevice).GetAwaiter().GetResult();
+        var deviceId = Guid.NewGuid();
+        var userId = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId == null)
+        {
+            return BadRequest("User not found");
+        }
+
+        Device newDevice = new($"{userId}-{deviceId}");
+        var addedDevice = await _registryManager.AddDeviceAsync(newDevice);
 
         Console.WriteLine($"Added new IoT device with ID: {addedDevice.Id}");
+        return Ok();
         //Console.WriteLine($"Device Key: {addedDevice.Authentication.SymmetricKey.PrimaryKey}");
     }
 }

@@ -13,9 +13,9 @@ var env = builder.Environment;
 var configuration = builder.Configuration;
 var isDevelopment = env.IsDevelopment();
 
-builder.Services.AddSingleton(RegistryManager.CreateFromConnectionString(configuration.GetValue<string>("iothub:connectionString")));
-
-builder.Services.AddControllers();
+builder.Services.AddSingleton(RegistryManager.CreateFromConnectionString(configuration.GetValue<string>("iothub:connectionString")))
+    .AddHttpContextAccessor()
+    .AddControllers();
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
@@ -29,6 +29,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         { configuration["SwaggerAuth:Scope"], "ReadWrite" },
         { "openid", "openid" },
+        { "profile", "profile" }
     };
     var authFlow = new OpenApiOAuthFlow
     {
@@ -73,7 +74,7 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = string.Empty; // serve UI at application root
     options.OAuthClientId(configuration["SwaggerAuth:ClientId"]);
     options.OAuthClientSecret(configuration["SwaggerAuth:ClientSecret"]);
-    options.OAuthScopes(["openid", configuration["SwaggerAuth:Scope"]]);
+    options.OAuthScopes(["openid", "profile", configuration["SwaggerAuth:Scope"]]);
     options.OAuthUseBasicAuthenticationWithAccessCodeGrant();
 });
 
