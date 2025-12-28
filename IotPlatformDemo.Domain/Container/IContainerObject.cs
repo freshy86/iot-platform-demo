@@ -1,8 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace IotPlatformDemo.Domain.Container;
 
 public interface IContainerObject
 {
-    public string ContainerName { get; }
-    
-    public string PartitionKey { get; }
+    [JsonIgnore] public string ContainerName { get; }
+    [JsonIgnore] public string PartitionKey { get; }
 }
