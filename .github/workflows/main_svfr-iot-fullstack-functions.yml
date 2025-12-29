@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Functions
+name: Build and deploy dotnet core project to Azure Function App - svfr-iot-fullstack-functions
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: './IotPlatformDemo.Functions' # set this to the path to your web app project, defaults to the repository root
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '10.0' # set this to the dotnet version to use
 
 jobs:
@@ -39,9 +39,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_39751C69D0B94A4297EC7F1B092BAB38 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_28ACF7D33AC747BD8EE2546A0D0F9F8F }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D578796E4A954B60B13027CFB8088E47 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E0827E20452D40E397E0CBB4D1E1478F }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D22DB56C403B434D8A351537DAE88F72 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A207086B3C294B23B5828702D8C40BC2 }}
 
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
