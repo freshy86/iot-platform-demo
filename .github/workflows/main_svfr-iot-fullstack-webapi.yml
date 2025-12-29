@@ -11,6 +11,7 @@ on:
 
 env:
   WEBAPI_PROJECT_FILE: './IotPlatformDemo.API/IotPlatformDemo.API.csproj'
+  FUNCTIONS_PROJECT_FILE: './IotPlatformDemo.Functions/IotPlatformDemo.Functions.csproj'
 
 jobs:
   build-and-test:
@@ -27,7 +28,7 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Build solution with dotnet
-        run: dotnet build 
+        run: dotnet build
 
       - name: Test with dotnet
         run: dotnet test --no-build --logger trx
@@ -40,16 +41,25 @@ jobs:
           path: IotPlatformDemo.Tests/TestResults/*.trx 
           reporter: dotnet-trx
 
-      - name: dotnet publish
-        run: dotnet publish ${{ env.WEBAPI_PROJECT_FILE }} -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      - name: dotnet publish api
+        run: dotnet publish ${{ env.WEBAPI_PROJECT_FILE }} -c Release -o ${{env.DOTNET_ROOT}}/api
 
-      - name: Upload artifact for deployment job
+      - name: upload api artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: .net-api
+          path: ${{env.DOTNET_ROOT}}/api
+          
+      - name: dotnet publish functions
+        run: dotnet publish ${{ env.FUNCTIONS_PROJECT_FILE }} -c Release -o ${{env.DOTNET_ROOT}}/functions
 
-  deploy:
+      - name: upload functions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: .net-functions
+          path: ${{env.DOTNET_ROOT}}/functions    
+
+  deploy-api:
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:
@@ -60,7 +70,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: .net-api
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -78,5 +88,32 @@ jobs:
           package: .
           clean: true
     
-          
+  deploy-functions:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-functions
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AB4986D716F24567A38B3F982C91BB70 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A7DF7185924D4F66881567489550CCFB }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E9B21F2C2682402FBFE06A022EE29F3A }}
+
+      - name: Deploy to Azure
+        id: fa
+        uses: Azure/functions-action@v1
+        with:
+          app-name: 'svfr-iot-fullstack-functions'
+          slot-name: 'Production'
+          package: .
+          clean: true        
           
