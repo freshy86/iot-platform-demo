@@ -1,6 +1,6 @@
 namespace IotPlatformDemo.Functions;
 
-public static class ChangeFeedContainerPrefixConstants
+public static class LeaseContainerPrefixConstants
 {
     //Only way I found to have different prefixes for debug and release builds, is there a better way?
 #if DEBUG
