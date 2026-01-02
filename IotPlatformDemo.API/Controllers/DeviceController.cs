@@ -32,11 +32,12 @@ public class DeviceController(
             return BadRequest("User not found");
         }
 
-        Device newDevice = new($"{userId}-{deviceId}");
-        var addedDevice = await registryManager.AddDeviceAsync(newDevice);
+        var iotDeviceId = $"{userId}-{deviceId}";
+        //Device newDevice = new(iotDeviceId);
+        //var addedDevice = await registryManager.AddDeviceAsync(newDevice);
 
-        Console.WriteLine($"Added new IoT device with ID: {addedDevice.Id}");
-        await eventStore.Append(new DeviceCreatedEvent(addedDevice.Id, userId));
+        Console.WriteLine($"Added new IoT device with ID: {iotDeviceId}");
+        await eventStore.Append(new DeviceCreatedEvent(iotDeviceId, userId));
         
         return Ok();
         //Console.WriteLine($"Device Key: {addedDevice.Authentication.SymmetricKey.PrimaryKey}");

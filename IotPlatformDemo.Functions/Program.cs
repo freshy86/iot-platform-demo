@@ -1,4 +1,5 @@
 using Azure.Core.Serialization;
+using IotPlatformDemo.Application.Notifications;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Azure.SignalR.Management;
@@ -24,7 +25,7 @@ var serviceManager = new ServiceManagerBuilder()
     })
     .BuildServiceManager();
 
-var serviceHubContext = await serviceManager.CreateHubContextAsync("ChatSampleHub", CancellationToken.None);
+var serviceHubContext = await serviceManager.CreateHubContextAsync(nameof(ClientNotificationHub), CancellationToken.None);
 
 builder.Services.AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights()

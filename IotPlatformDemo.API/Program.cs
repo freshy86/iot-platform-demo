@@ -1,5 +1,6 @@
 using IotPlatformDemo.API;
 using IotPlatformDemo.Application.EventStore;
+using IotPlatformDemo.Application.Notifications;
 using IotPlatformDemo.Domain.Container;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
@@ -108,5 +109,5 @@ app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHub<ChatSampleHub>("/chat");
+app.MapHub<ClientNotificationHub>("/notifications");
 app.Run();

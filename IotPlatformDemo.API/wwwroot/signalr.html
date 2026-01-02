@@ -10,17 +10,17 @@
     <title>Azure SignalR Group Chat</title>
 </head>
 <body>
-<h2 class="text-center" style="margin-top: 0; padding-top: 30px; padding-bottom: 30px;">Azure SignalR Group Chat</h2>
+<h2 class="text-center" style="margin-top: 0; padding-top: 30px; padding-bottom: 30px;">Azure SignalR test</h2>
 <div class="container" style="height: calc(100% - 110px);">
     <div id="messages" style="background-color: whitesmoke; "></div>
-    <div style="width: 100%; border-left-style: ridge; border-right-style: ridge;">
+    <!--<div style="width: 100%; border-left-style: ridge; border-right-style: ridge;">
       <textarea id="message" style="width: 100%; padding: 5px 10px; border-style: hidden;"
                 placeholder="Type message and press Enter to send..."></textarea>
     </div>
     <div style="overflow: auto; border-style: ridge; border-top-style: hidden;">
         <button class="btn-warning pull-right" id="echo">Echo</button>
         <button class="btn-success pull-right" id="sendmessage">Send</button>
-    </div>
+    </div> -->
 </div>
 <div class="modal alert alert-danger fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
@@ -57,10 +57,10 @@
             return username;
         }
 
-        username = getUserName();
+        username = "anonymous";
         // Set initial focus to message input box.
-        var messageInput = document.getElementById("message");
-        messageInput.focus();
+        // var messageInput = document.getElementById("message");
+        // messageInput.focus();
 
         function createMessageEntry(encodedName, encodedMsg) {
             var entry = document.createElement("div");
@@ -98,15 +98,14 @@
                 appendMessage(encodedName, encodedMsg);
             };
             // Create a function that the hub can call to broadcast messages.
-            connection.on("broadcastMessage", messageCallback);
-            connection.on("echo", messageCallback);
+            connection.on("notification", messageCallback);
             connection.onclose(onConnectionError);
         }
 
         function onConnected(connection) {
             console.log("connection started");
             connection.send("broadcastMessage", "_SYSTEM_", username + " JOINED");
-            document.getElementById("sendmessage").addEventListener("click", function (event) {
+            /*document.getElementById("sendmessage").addEventListener("click", function (event) {
                 // Call the broadcastMessage method on the hub.
                 if (messageInput.value) {
                     connection.send("broadcastMessage", username, messageInput.value)
@@ -133,7 +132,7 @@
                 messageInput.value = "";
                 messageInput.focus();
                 event.preventDefault();
-            });
+            });*/
         }
 
         function onConnectionError(error) {
@@ -146,7 +145,7 @@
         }
         
         var connection = new signalR.HubConnectionBuilder()
-            .withUrl("/chat", {
+            .withUrl("/notifications", {
                 accessTokenFactory: () => {
                     return JSON.parse(localStorage.getItem("authorized")).bearer.token.access_token;
                 }

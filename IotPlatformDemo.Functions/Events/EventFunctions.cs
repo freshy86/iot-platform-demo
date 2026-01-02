@@ -25,7 +25,7 @@ public class EventFunctions(ILogger<EventFunctions> logger, IServiceHubContext s
             foreach (var e in dataObjects.Select(obj => obj.Data))
             {
                 logger.LogInformation("Data: {desc}", e);
-                await serviceHubContext.Clients.User(e.UserId).SendAsync("echo", "system", $"Event received: {e.Type}, {e.Action} for user: {e.UserId}");
+                await serviceHubContext.Clients.User(e.UserId).SendAsync("notification", "system", $"Event received: {e.Type}, {e.Action} for user: {e.UserId}");
             }
         }
     }
