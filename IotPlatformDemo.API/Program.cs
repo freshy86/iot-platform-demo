@@ -1,3 +1,4 @@
+using IotPlatformDemo.API;
 using IotPlatformDemo.Application.EventStore;
 using IotPlatformDemo.Domain.Container;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,8 +41,8 @@ builder.Services.AddSingleton(RegistryManager.CreateFromConnectionString(configu
     .AddControllers();
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApi(builder.Configuration);
+builder.Services.AddSignalR().AddAzureSignalR(configuration.GetValue<string>("SignalR:ConnectionString"));
 
 var baseUrl = $"{configuration["AzureAd:Instance"]}/{configuration["AzureAd:TenantId"]}";
 
@@ -98,9 +99,14 @@ app.UseSwaggerUI(options =>
     options.OAuthClientSecret(configuration["SwaggerAuth:ClientSecret"]);
     options.OAuthScopes(["openid", "profile", configuration["SwaggerAuth:Scope"]]);
     options.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+    options.EnablePersistAuthorization();
 });
 
+app.UseDefaultFiles();
+app.UseRouting();
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatSampleHub>("/chat");
 app.Run();
