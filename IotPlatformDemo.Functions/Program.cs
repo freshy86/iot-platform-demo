@@ -19,21 +19,21 @@ builder.Services.Configure<WorkerOptions>(workerOptions =>
     workerOptions.Serializer = new NewtonsoftJsonObjectSerializer(settings);
 });
 
-var serviceManager = new ServiceManagerBuilder()
+var signalrServiceManager = new ServiceManagerBuilder()
     .WithOptions(option =>
     {
         option.ConnectionString = builder.Configuration.GetSection("ConnectionStrings").GetSection("SignalR").Value;
     })
     .BuildServiceManager();
 
-var serviceHubContext = await serviceManager.CreateHubContextAsync(nameof(ClientNotificationHub), CancellationToken.None);
+var signalrServiceHubContext = await signalrServiceManager.CreateHubContextAsync(nameof(ClientNotificationHub), CancellationToken.None);
 
 ServiceBusClient serviceBusClient = new (builder.Configuration.GetSection("ConnectionStrings")["ServiceBus"]);
 var serviceBusSender = serviceBusClient.CreateSender(builder.Configuration.GetSection("ServiceBusTopicName").Value);
 
 builder.Services.AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights()
-    .AddSingleton<IServiceHubContext>(serviceHubContext)
+    .AddSingleton<IServiceHubContext>(signalrServiceHubContext)
     .AddSingleton(serviceBusSender);
 
 builder.Build().Run();

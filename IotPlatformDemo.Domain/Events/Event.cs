@@ -10,4 +10,5 @@ public class Event(string userId, EventType type, Action action, string partitio
     [JsonProperty] public Guid Id { get; } = Guid.NewGuid();
     [JsonProperty] public Action Action { get; } = action;
     [JsonProperty] public EventType Type { get; } = type;
+    [JsonProperty] public DateTimeOffset CreatedAt { get; } = DateTimeOffset.UtcNow;
 }

@@ -9,4 +9,6 @@ public interface IEvent
     public Guid Id { get; }
     public Action Action { get; }
     public EventType Type { get; }
+    public DateTimeOffset CreatedAt { get; }
+
 }
