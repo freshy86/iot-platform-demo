@@ -1,4 +1,5 @@
 using Azure.Core.Serialization;
+using Azure.Messaging.ServiceBus;
 using IotPlatformDemo.Application.Notifications;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
@@ -27,8 +28,12 @@ var serviceManager = new ServiceManagerBuilder()
 
 var serviceHubContext = await serviceManager.CreateHubContextAsync(nameof(ClientNotificationHub), CancellationToken.None);
 
+ServiceBusClient serviceBusClient = new (builder.Configuration.GetSection("ConnectionStrings")["ServiceBus"]);
+var serviceBusSender = serviceBusClient.CreateSender(builder.Configuration.GetSection("ServiceBusTopicName").Value);
+
 builder.Services.AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights()
-    .AddSingleton<IServiceHubContext>(serviceHubContext);
+    .AddSingleton<IServiceHubContext>(serviceHubContext)
+    .AddSingleton(serviceBusSender);
 
 builder.Build().Run();

@@ -7,8 +7,7 @@ public class CosmosDbEventStore(Container targetContainer) : IEventStore
 {
     public async Task Append(Event eventToAdd)
     {
-        DataObject<Event> dataObject = new($"{eventToAdd.Id}", eventToAdd.PartitionKey, eventToAdd);
-        PartitionKey partitionKey = new(dataObject.PartitionKey);
-        await targetContainer.CreateItemAsync(dataObject, partitionKey).ConfigureAwait(false);
+        PartitionKey partitionKey = new(eventToAdd.PartitionKey);
+        await targetContainer.CreateItemAsync(eventToAdd, partitionKey).ConfigureAwait(false);
     }
 }
