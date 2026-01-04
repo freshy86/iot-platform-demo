@@ -18,7 +18,7 @@ public class EventFunctions(ILogger<EventFunctions> logger,
             containerName: "events",
             Connection = "CosmosDb",
             LeaseContainerName = "leases",
-            LeaseContainerPrefix = $"events{LeaseContainerPrefixConstants.Extension}",
+            LeaseContainerPrefix = "%LeaseContainerPrefix%",
             CreateLeaseContainerIfNotExists = true)] List<ExpandoObject> events,
         FunctionContext context, CancellationToken cancellationToken)
     {
@@ -33,7 +33,7 @@ public class EventFunctions(ILogger<EventFunctions> logger,
             {
                 foreach (var e in events as dynamic)
                 {
-                    var partitionKey = e.partitionKey;
+                    string partitionKey = e.partitionKey;
                     var serviceBusMessage = new ServiceBusMessage(JsonConvert.SerializeObject(e))
                     {
                         ContentType = "application/json;charset=utf-8",
@@ -42,14 +42,13 @@ public class EventFunctions(ILogger<EventFunctions> logger,
                         SessionId = partitionKey
                     };
 
-                    // ReSharper disable once CanSimplifyDictionaryLookupWithTryGetValue
-                    if (serviceBusMessages.ContainsKey(partitionKey))
+                    if (serviceBusMessages.TryGetValue(partitionKey, out var value))
                     {
-                        serviceBusMessages[partitionKey].Add(serviceBusMessage);
+                        value.Add(serviceBusMessage);
                     }
                     else
                     {
-                        serviceBusMessages[partitionKey] = new List<ServiceBusMessage> { serviceBusMessage };
+                        serviceBusMessages[partitionKey] = [serviceBusMessage];
                     }
 
                     eventsCount += 1;
