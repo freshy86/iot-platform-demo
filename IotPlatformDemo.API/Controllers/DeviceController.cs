@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using IotPlatformDemo.Application.EventStore;
-using IotPlatformDemo.Domain.Events.Device;
+using IotPlatformDemo.Domain.Events.Device.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Devices;

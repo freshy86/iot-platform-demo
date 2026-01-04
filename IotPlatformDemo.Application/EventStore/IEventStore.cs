@@ -1,5 +1,4 @@
-using IotPlatformDemo.Domain;
-using IotPlatformDemo.Domain.Events;
+using IotPlatformDemo.Domain.Events.Base.V1;
 
 namespace IotPlatformDemo.Application.EventStore;
 

@@ -1,6 +1,6 @@
 using System.Text;
 using Azure.Messaging.ServiceBus;
-using IotPlatformDemo.Domain.Events;
+using IotPlatformDemo.Domain.Events.Base.V1;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
