@@ -11,4 +11,5 @@ public class Event(string userId, EventType type, Action action, string partitio
     [JsonProperty] public Action Action { get; } = action;
     [JsonProperty] public EventType Type { get; } = type;
     [JsonProperty] public DateTimeOffset CreatedAt { get; } = DateTimeOffset.UtcNow;
+    [JsonProperty] public string Version => $"{GetType().FullName}";
 }

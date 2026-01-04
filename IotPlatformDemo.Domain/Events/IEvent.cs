@@ -10,5 +10,5 @@ public interface IEvent
     public Action Action { get; }
     public EventType Type { get; }
     public DateTimeOffset CreatedAt { get; }
-
+    public string Version { get; }
 }

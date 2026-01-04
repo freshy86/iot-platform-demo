@@ -1,9 +1,11 @@
+using System.Text;
 using Azure.Messaging.ServiceBus;
+using IotPlatformDemo.Domain.Events;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace IotPlatformDemo.Functions.Events;
 
@@ -37,28 +39,24 @@ public class EventConsumerFunctions(ILogger<EventConsumerFunctions> logger)
             IsBatched = false, IsSessionsEnabled = true)] ServiceBusReceivedMessage message,
         [DurableClient] DurableTaskClient client, FunctionContext executionContext)
     {
+        try
+        {
+            var eventsAssembly = typeof(Event).Assembly;
+            var eventType = eventsAssembly.GetType($"{message.ApplicationProperties[nameof(Event.Version)]}", true)!;
+            var e = (JsonConvert.DeserializeObject(Encoding.UTF8.GetString(message.Body), eventType) as Event)!;
         
-        string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
-            nameof(EventConsumerFunctions));
+            logger.LogInformation("Event received: {e}", e);
 
-        logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
-        //await serviceHubContext.Clients.User(e.UserId).SendAsync("notification", "system", $"Event received: {e.Type}, {e.Action} for user: {e.UserId}");
+            var instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
+                nameof(EventConsumerFunctions));
+
+            logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
+            //await serviceHubContext.Clients.User(e.UserId).SendAsync("notification", "system", $"Event received: {e.Type}, {e.Action} for user: {e.UserId}");
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Orchestration by event could not be started.");
+            throw;
+        }
     }
-    
-    /*[Function("HelloOrchestration_HttpStart")]
-    public async Task<HttpResponseData> HttpStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
-        [DurableClient] DurableTaskClient client,
-        FunctionContext executionContext)
-    {
-        // Function input comes from the request content.
-        string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
-            nameof(EventConsumerFunctions));
-
-        logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
-
-        // Returns an HTTP 202 response with an instance management payload.
-        // See https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-http-api#start-orchestration
-        return await client.CreateCheckStatusResponseAsync(req, instanceId);
-    }*/
 }

@@ -1,5 +1,7 @@
 using System.Dynamic;
+using System.Text;
 using Azure.Messaging.ServiceBus;
+using IotPlatformDemo.Domain.Events;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.SignalR.Management;
 using Microsoft.Extensions.Logging;
@@ -34,13 +36,14 @@ public class EventProducerFunctions(ILogger<EventProducerFunctions> logger,
                 foreach (var e in events as dynamic)
                 {
                     string partitionKey = e.partitionKey;
-                    var serviceBusMessage = new ServiceBusMessage(JsonConvert.SerializeObject(e))
+                    var serviceBusMessage = new ServiceBusMessage(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(e)))
                     {
                         ContentType = "application/json;charset=utf-8",
                         Subject = e.type.ToString(),
                         MessageId = e.id.ToString(),
                         SessionId = partitionKey
                     };
+                    serviceBusMessage.ApplicationProperties.Add(nameof(Event.Version), e.version);
 
                     if (serviceBusMessages.TryGetValue(partitionKey, out var value))
                     {
