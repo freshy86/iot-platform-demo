@@ -10,6 +10,7 @@ namespace IotPlatformDemo.API.Controllers;
 
 [Authorize]
 [ApiController]
+[Consumes("application/json")]
 [Route("[controller]")]
 public class DeviceController(
     RegistryManager registryManager,
@@ -22,7 +23,7 @@ public class DeviceController(
         RequiredScopesConfigurationKey = "AzureAD:Scopes:Write",
         RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Write"
     )]
-    public async Task<IActionResult> AddNewDevice()
+    public async Task<IActionResult> AddNewDevice([FromBody] string deviceName)
     {
         var deviceId = Guid.NewGuid();
         var userId = contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -37,7 +38,10 @@ public class DeviceController(
         //var addedDevice = await registryManager.AddDeviceAsync(newDevice);
 
         Console.WriteLine($"Added new IoT device with ID: {iotDeviceId}");
-        await eventStore.Append(new DeviceCreatedEvent(iotDeviceId, userId));
+        await eventStore.Append(new DeviceCreatedEvent(iotDeviceId, userId)
+        {
+            DeviceName = deviceName
+        });
         
         return Ok();
         //Console.WriteLine($"Device Key: {addedDevice.Authentication.SymmetricKey.PrimaryKey}");

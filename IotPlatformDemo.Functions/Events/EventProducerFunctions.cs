@@ -13,9 +13,9 @@ public class EventProducerFunctions(ILogger<EventProducerFunctions> logger,
     IServiceHubContext signalrServiceHubContext,
     ServiceBusSender serviceBusSender)
 {
-    [Function(nameof(EventToServiceBusForwarding))]
+    [Function(nameof(Event_ForwardToServiceBus))]
     [FixedDelayRetry(10, "00:00:03")]
-    public async Task EventToServiceBusForwarding([CosmosDBTrigger(
+    public async Task Event_ForwardToServiceBus([CosmosDBTrigger(
             databaseName: "iot_demo_write",
             containerName: "events",
             Connection = "CosmosDb",

@@ -2,6 +2,7 @@ using Azure.Core.Serialization;
 using Azure.Messaging.ServiceBus;
 using IotPlatformDemo.Application.Notifications;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Azure.SignalR.Management;
@@ -29,18 +30,37 @@ builder.Services.Configure<WorkerOptions>(workerOptions =>
 var signalrServiceManager = new ServiceManagerBuilder()
     .WithOptions(option =>
     {
-        option.ConnectionString = builder.Configuration.GetSection("ConnectionStrings").GetSection("SignalR").Value;
+        option.ConnectionString = builder.Configuration.GetSection("SignalR").Value;
     })
     .BuildServiceManager();
 
 var signalrServiceHubContext = await signalrServiceManager.CreateHubContextAsync(nameof(ClientNotificationHub), CancellationToken.None);
 
-ServiceBusClient serviceBusClient = new (builder.Configuration.GetSection("ConnectionStrings")["ServiceBus"]);
+ServiceBusClient serviceBusClient = new (builder.Configuration.GetSection("ServiceBus").Value);
 var serviceBusSender = serviceBusClient.CreateSender(builder.Configuration.GetSection("ServiceBusTopicName").Value);
+
+var cOpts = new CosmosClientOptions
+{
+    SerializerOptions = new CosmosSerializationOptions()
+    {
+        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
+        IgnoreNullValues = true
+    }
+};
+
+var containers = new List<(string, string)>
+{
+    ("iot_demo_write", "data")
+};
+
+var cosmosClient = CosmosClient.CreateAndInitializeAsync(builder.Configuration.GetSection("CosmosDb").Value,
+    containers, cOpts).Result;
+var writeDataContainer = cosmosClient.GetContainer("iot_demo_write", "data");
 
 builder.Services.AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights()
     .AddSingleton<IServiceHubContext>(signalrServiceHubContext)
-    .AddSingleton(serviceBusSender);
+    .AddSingleton(serviceBusSender)
+    .AddSingleton(writeDataContainer);
 
 builder.Build().Run();
