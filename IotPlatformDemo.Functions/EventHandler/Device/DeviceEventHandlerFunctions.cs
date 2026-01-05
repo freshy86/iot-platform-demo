@@ -27,9 +27,13 @@ public class DeviceEventHandlerFunctions(ILogger<DeviceEventHandlerFunctions> lo
                 OrchestrationId = context.InstanceId
             });
         
+            var options = TaskOptions.FromRetryPolicy(new RetryPolicy(
+                maxNumberOfAttempts: 5,
+                firstRetryInterval: TimeSpan.FromSeconds(1)));
+            
             var aggregateRoot = await context.CallActivityAsync<DeviceAggregateRoot>(nameof(Device_UpdateAggregateRoot), 
-                eventAsString);
-            await context.CallActivityAsync(nameof(Device_UpdateMaterializedViews), aggregateRoot);
+                eventAsString, options);
+            await context.CallActivityAsync(nameof(Device_UpdateMaterializedViews), aggregateRoot, options);
         
             await context.CallActivityAsync(nameof(GeneralActivityFunctions.General_SignalOrchestrationStatusToFrontends), new OrchestrationStatus
             {
