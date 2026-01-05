@@ -5,6 +5,7 @@ namespace IotPlatformDemo.Domain.AggregateRoots;
 
 public abstract class AggregateRoot(string partitionKey) : IAggregateRoot
 {
-    [JsonProperty] public Guid Id { get; } = Guid.NewGuid();
+    [JsonProperty] public string Id { get; set; } = Guid.NewGuid().ToString("N");
     [JsonProperty] public string PartitionKey { get; } = partitionKey;
+    [JsonProperty("_etag")] public string ETag { get; init; }
 }

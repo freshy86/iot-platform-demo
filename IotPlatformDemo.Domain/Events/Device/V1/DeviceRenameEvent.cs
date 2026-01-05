@@ -7,7 +7,7 @@ namespace IotPlatformDemo.Domain.Events.Device.V1;
 
 public class DeviceRenameEvent(string deviceId, string userId, string newDeviceName): DeviceEvent(userId, Action.Update, deviceId)
 {
-    [JsonProperty] public string NewDeviceName { get; } = newDeviceName;
+    [JsonProperty] public string NewDeviceName { get; init; } = newDeviceName;
 
     public override void Apply(DeviceAggregateRoot aggregateRoot)
     {

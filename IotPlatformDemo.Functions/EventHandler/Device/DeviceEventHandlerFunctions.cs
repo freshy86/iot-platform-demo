@@ -2,15 +2,17 @@ using IotPlatformDemo.Domain.AggregateRoots.Device;
 using IotPlatformDemo.Domain.Events.Base.V1;
 using IotPlatformDemo.Domain.Events.Device.V1;
 using IotPlatformDemo.Functions.General;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Action = System.Action;
 
 namespace IotPlatformDemo.Functions.EventHandler.Device;
 
-public class DeviceEventHandlerFunctions(ILogger<DeviceEventHandlerFunctions> logger)
+public class DeviceEventHandlerFunctions(ILogger<DeviceEventHandlerFunctions> logger, Container dataContainer)
 {
     [Function(nameof(Device_RunEventOrchestrator))]
     public async Task Device_RunEventOrchestrator(
@@ -39,7 +41,8 @@ public class DeviceEventHandlerFunctions(ILogger<DeviceEventHandlerFunctions> lo
             {
                 Status = OrchestrationStatus.StatusCode.Success,
                 UserId = userId,
-                OrchestrationId = context.InstanceId
+                OrchestrationId = context.InstanceId,
+                Result = aggregateRoot.Id
             });
         }
         catch (Exception e)
@@ -56,7 +59,7 @@ public class DeviceEventHandlerFunctions(ILogger<DeviceEventHandlerFunctions> lo
     }
 
     [Function(nameof(Device_UpdateAggregateRoot))]
-    public DeviceAggregateRoot Device_UpdateAggregateRoot([ActivityTrigger] string eventAsString,
+    public async Task<DeviceAggregateRoot> Device_UpdateAggregateRoot([ActivityTrigger] string eventAsString,
         FunctionContext executionContext)
     {
         var eventsAssembly = typeof(Event).Assembly;
@@ -64,10 +67,32 @@ public class DeviceEventHandlerFunctions(ILogger<DeviceEventHandlerFunctions> lo
         var eventType = eventsAssembly.GetType($"{jsonObject.GetValue("version")}", true)!;
         var receivedEvent = (jsonObject.ToObject(eventType) as DeviceEvent)!;
 
-        //TODO: Get it
-        var aggregateRoot = new DeviceAggregateRoot(receivedEvent.PartitionKey);
+        DeviceAggregateRoot? aggregateRoot;
+        if (receivedEvent.Action == Domain.Events.Base.V1.Action.Create)
+        {
+            aggregateRoot = new DeviceAggregateRoot(receivedEvent.PartitionKey);
+        }
+        else
+        {
+            aggregateRoot = await dataContainer.ReadItemAsync<DeviceAggregateRoot>(receivedEvent.DeviceId,
+                new PartitionKey(receivedEvent.DeviceId), null, executionContext.CancellationToken);
+        }
+
+        if (aggregateRoot == null)
+        {
+            throw new Exception("Could not retrieve or create aggregate root");
+        }
+        
         logger.LogInformation("Updating device aggregate root");
         receivedEvent.Apply(aggregateRoot);
+
+        var requestOptions = new ItemRequestOptions
+        {
+            IfMatchEtag = aggregateRoot.ETag
+        };
+
+        aggregateRoot = await dataContainer.UpsertItemAsync(aggregateRoot, new PartitionKey(receivedEvent.DeviceId), requestOptions,
+            executionContext.CancellationToken);
 
         return aggregateRoot;
     }
@@ -76,6 +101,8 @@ public class DeviceEventHandlerFunctions(ILogger<DeviceEventHandlerFunctions> lo
     public void Device_UpdateMaterializedViews([ActivityTrigger] DeviceAggregateRoot aggregateRoot,
         FunctionContext executionContext)
     {
+        //Task.Delay(3000).Wait();
+        //throw new Exception("hmm!");
         logger.LogInformation("Updating device materialized views");
     }
 }

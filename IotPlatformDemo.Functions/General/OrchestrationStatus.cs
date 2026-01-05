@@ -16,4 +16,5 @@ public record OrchestrationStatus
     [JsonProperty] public required StatusCode Status { get; init; }
     [JsonProperty] public required string UserId { get; init; }
     [JsonProperty] public required string OrchestrationId { get; init; }
+    [JsonProperty] public object? Result { get; init; }
 }

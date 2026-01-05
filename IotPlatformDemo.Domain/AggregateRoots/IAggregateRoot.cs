@@ -4,6 +4,7 @@ namespace IotPlatformDemo.Domain.AggregateRoots;
 
 public interface IAggregateRoot
 {
-    Guid Id { get; }
+    string Id { get; }
     string PartitionKey { get; }
+    string ETag { get; }
 }

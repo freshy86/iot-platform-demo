@@ -5,11 +5,11 @@ namespace IotPlatformDemo.Domain.Events.Base.V1;
 
 public class Event(string userId, EventType type, Action action, string partitionKey) : IEvent
 { 
-    [JsonProperty] public string PartitionKey { get; } = partitionKey;
-    [JsonProperty] public string UserId { get; } = userId;
-    [JsonProperty] public string Id { get; } = Guid.NewGuid().ToString("N");
-    [JsonProperty] public Action Action { get; } = action;
-    [JsonProperty] public EventType Type { get; } = type;
-    [JsonProperty] public DateTimeOffset CreatedAt { get; } = DateTimeOffset.UtcNow;
+    [JsonProperty] public string PartitionKey { get; init; } = partitionKey;
+    [JsonProperty] public string UserId { get; init; } = userId;
+    [JsonProperty] public string Id { get; init; } = Guid.NewGuid().ToString("N");
+    [JsonProperty] public Action Action { get; init; } = action;
+    [JsonProperty] public EventType Type { get; init; } = type;
+    [JsonProperty] public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
     [JsonProperty] public string Version => $"{GetType().FullName}";
 }
