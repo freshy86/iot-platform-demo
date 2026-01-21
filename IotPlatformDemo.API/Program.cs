@@ -50,6 +50,19 @@ builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApi(builder.Configuration);
 builder.Services.AddSignalR().AddAzureSignalR(configuration.GetValue<string>("SignalR:ConnectionString"));
 
+const string allowSpecificOriginsDevelopment = "allowSpecificOriginsDevelopment";
+if (isDevelopment)
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(name: allowSpecificOriginsDevelopment,
+            policy  =>
+            {
+                policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+            });
+    });
+}
+
 var baseUrl = $"{configuration["AzureAd:Instance"]}/{configuration["AzureAd:TenantId"]}";
 
 builder.Services.AddSwaggerGen(options =>
@@ -110,6 +123,10 @@ app.UseSwaggerUI(options =>
 
 app.UseDefaultFiles();
 app.UseRouting();
+if (isDevelopment)
+{
+    app.UseCors(allowSpecificOriginsDevelopment);
+}
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthorization();
