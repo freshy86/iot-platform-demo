@@ -17,7 +17,7 @@ namespace IotPlatformDemo.API.Controllers;
 [Consumes("application/json")]
 [Produces("application/json")]
 [Route("[controller]")]
-public class DeviceController(
+public class DevicesController(
     RegistryManager registryManager,
     IHttpContextAccessor contextAccessor,
     IEventStore eventStore, 
@@ -30,7 +30,7 @@ public class DeviceController(
         RequiredScopesConfigurationKey = "AzureAD:Scopes:Read",
         RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Read"
     )]
-    public async Task<IActionResult> GetDevice(string deviceId)
+    public async Task<IActionResult> GetDevice([FromRoute] string deviceId)
     {
         var userId = contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
@@ -50,9 +50,11 @@ public class DeviceController(
         RequiredScopesConfigurationKey = "AzureAD:Scopes:Read",
         RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Read"
     )]
-    public async Task<IActionResult> GetDevices(int maxItems = 0, string? continuationToken = null)
+    public async Task<IActionResult> GetDevices([FromQuery] int maxItems = 0, [FromQuery] string? sortModel = null, [FromQuery] string? continuationToken = null)
     {
         var userId = contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        //var sortModelObj = JsonConvert.DeserializeObject<List<SortItem>>(sortModel);
         
         try
         {
@@ -61,19 +63,19 @@ public class DeviceController(
             {
                 { "@type", nameof(DeviceView) }
             };
-            
+
             var totalItemsQuery = QueryHelpers.PrepareQuery(queryString, "COUNT(1)", parameterDefinitions);
             var itemsQuery = QueryHelpers.PrepareQuery(queryString, "*", parameterDefinitions);
 
-            var result = await Helpers.QueryHelpers.GetMultipleItemsQuery<DeviceView>(
+            var result = await QueryHelpers.GetMultipleItemsQuery<DeviceView>(
                 readDataContainer,
                 totalItemsQuery,
-                itemsQuery, 
+                itemsQuery,
                 new PartitionKey(userId),
                 maxItems,
                 continuationToken
             );
-            
+
             return Ok(result);
         }
         catch (CosmosException e)
